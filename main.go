@@ -97,6 +97,7 @@ func (it *Interpreter) GetNextToken() *Token {
 		}
 	}
 
+	// when Done() = true, return nil for currentToken
 	return nil
 }
 
@@ -109,34 +110,40 @@ func (it *Interpreter) Eat(tokenLabel string) error {
 	return errors.New("Error in consuming token")
 }
 
+func (it *Interpreter) Term() (int, error) {
+	val, err := strconv.Atoi(it.currentToken.literal)
+	if err != nil {
+		panic(fmt.Sprintf("%v", err))
+	}
+	it.Eat(INTEGER)
+	return val, nil
+}
+
 func (it *Interpreter) Expr() int {
 	it.currentToken = it.GetNextToken()
-	left, err := strconv.Atoi(it.currentToken.literal)
-	if err != nil {
-		panic(fmt.Sprintf("%v", err))
-	}
-	// Eat() calls GetNextToken()
-	it.Eat(INTEGER)
 
-	op := it.currentToken
-	if it.currentToken.label == PLUS {
-		it.Eat(PLUS)
-	} else {
-		it.Eat(MINUS)
-	}
+	val, _ := it.Term()
 
-	right, err := strconv.Atoi(it.currentToken.literal)
-	if err != nil {
-		panic(fmt.Sprintf("%v", err))
-	}
-	it.Eat(INTEGER)
+	for {
+		if it.currentToken == nil {
+			break
+		}
 
-	if op.label == PLUS {
-		return left + right
-	} else {
-		return left - right
-	}
+		if it.currentToken.label == PLUS {
+			it.Eat(PLUS)
+			right, _ := it.Term()
+			val += right
+			continue
+		}
 
+		if it.currentToken.label == MINUS {
+			it.Eat(MINUS)
+			right, _ := it.Term()
+			val -= right
+			continue
+		}
+	}
+	return val
 }
 
 func Calculate(eq string) int {

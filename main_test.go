@@ -24,8 +24,15 @@ func TestDigitsPlus(t *testing.T) {
 }
 
 func TestDigitsMinus(t *testing.T) {
-	res := Calculate("99-57")
+	res := Calculate("99 -  57")
 	if res != 42 {
 		t.Error("99-57!=42")
+	}
+}
+
+func TestMultipleOperators(t *testing.T) {
+	res := Calculate("2 + 6- 4 +5-3")
+	if res != 6 {
+		t.Error("2 + 6- 4 +5-3!= 6")
 	}
 }
