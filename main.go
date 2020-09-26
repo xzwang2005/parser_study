@@ -4,12 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 const (
 	// token type
 	INTEGER = "INTEGER"
 	PLUS    = "PLUS"
+	MINUS   = "MINUS"
 	EOF     = "EOF"
 )
 
@@ -28,32 +30,79 @@ type Interpreter struct {
 	currentToken *Token
 }
 
-func (it *Interpreter) GetNextToken() *Token {
-	if it.pos >= len(it.text) {
-		return nil
-	}
-	currentChar := it.text[it.pos]
-	if currentChar >= '0' && currentChar <= '9' {
+func (it *Interpreter) Advance() {
+	if !it.Done() {
 		it.pos++
-		return &Token{
-			label:   INTEGER,
-			literal: string(currentChar),
+	}
+}
+
+func (it *Interpreter) Done() bool {
+	return it.pos >= len(it.text)
+}
+
+func (it *Interpreter) SkipWhitespace() {
+	for {
+		if it.Done() || it.text[it.pos] != ' ' {
+			break
+		}
+		it.Advance()
+	}
+}
+
+func (it *Interpreter) GetInteger() *Token {
+	var sb strings.Builder
+	for {
+		if it.Done() || it.text[it.pos] < '0' || it.text[it.pos] > '9' {
+			break
+		}
+		sb.WriteString(string(it.text[it.pos]))
+		it.Advance()
+	}
+
+	return &Token{
+		label:   INTEGER,
+		literal: sb.String(),
+	}
+}
+
+func (it *Interpreter) GetNextToken() *Token {
+	for {
+		if it.Done() {
+			break
+		}
+		currentChar := it.text[it.pos]
+
+		if currentChar == ' ' {
+			it.SkipWhitespace()
+		}
+
+		if currentChar >= '0' && currentChar <= '9' {
+			return it.GetInteger()
+		}
+
+		if currentChar == '+' {
+			it.Advance()
+			return &Token{
+				label:   PLUS,
+				literal: "+",
+			}
+		}
+
+		if currentChar == '-' {
+			it.Advance()
+			return &Token{
+				label:   MINUS,
+				literal: "-",
+			}
 		}
 	}
 
-	if currentChar == '+' {
-		it.pos++
-		return &Token{
-			label:   PLUS,
-			literal: "+",
-		}
-	}
 	return nil
 }
 
 func (it *Interpreter) Eat(tokenLabel string) error {
 	if it.currentToken.label == tokenLabel {
-		fmt.Printf("process token: %v\n", it.currentToken)
+		//fmt.Printf("process token: %v\n", it.currentToken)
 		it.currentToken = it.GetNextToken()
 		return nil
 	}
@@ -66,10 +115,15 @@ func (it *Interpreter) Expr() int {
 	if err != nil {
 		panic(fmt.Sprintf("%v", err))
 	}
+	// Eat() calls GetNextToken()
 	it.Eat(INTEGER)
 
-	//_ := it.currentToken
-	it.Eat(PLUS)
+	op := it.currentToken
+	if it.currentToken.label == PLUS {
+		it.Eat(PLUS)
+	} else {
+		it.Eat(MINUS)
+	}
 
 	right, err := strconv.Atoi(it.currentToken.literal)
 	if err != nil {
@@ -77,7 +131,12 @@ func (it *Interpreter) Expr() int {
 	}
 	it.Eat(INTEGER)
 
-	return left + right
+	if op.label == PLUS {
+		return left + right
+	} else {
+		return left - right
+	}
+
 }
 
 func Calculate(eq string) int {
