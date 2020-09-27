@@ -9,6 +9,8 @@ const (
 	MINUS   = "MINUS"
 	MULT    = "MULT"
 	DIV     = "DIV"
+	LPAREN  = "("
+	RPAREN  = ")"
 	EOF     = "EOF"
 )
 

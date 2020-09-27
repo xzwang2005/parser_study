@@ -77,6 +77,18 @@ func (it *Lexer) GetNextToken() {
 			label:   DIV,
 			literal: "/",
 		}
+	case '(':
+		it.Advance()
+		it.currentToken = &Token{
+			label:   LPAREN,
+			literal: "(",
+		}
+	case ')':
+		it.Advance()
+		it.currentToken = &Token{
+			label:   RPAREN,
+			literal: ")",
+		}
 	default:
 		if currentChar >= '0' && currentChar <= '9' {
 			it.currentToken = it.GetInteger()

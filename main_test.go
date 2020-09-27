@@ -46,3 +46,10 @@ func TestFourOperations(t *testing.T) {
 		t.Error("2 + 6* 2 -5/2 +2*3/4+6*8/7 = ", strconv.Itoa(res))
 	}
 }
+
+func TestWithParentheses(t *testing.T) {
+	res := Calculate("(2 + 6)* 2 - (5+ 3 )*2 - 3")
+	if res != -3 {
+		t.Error("(2 + 6)* 2 - (5+ 3 )*2 - 3 = ", strconv.Itoa(res))
+	}
+}
