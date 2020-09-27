@@ -10,7 +10,7 @@ type Interpreter struct {
 	Lexer
 }
 
-func (it *Interpreter) Eat(tokenLabel string) error {
+func (it *Interpreter) Eat(tokenLabel int) error {
 	if it.currentToken.label == tokenLabel {
 		//fmt.Printf("process token: %v\n", it.currentToken)
 		it.GetNextToken()

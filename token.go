@@ -4,18 +4,18 @@ import "fmt"
 
 const (
 	// token type
-	INTEGER = "INTEGER"
-	PLUS    = "PLUS"
-	MINUS   = "MINUS"
-	MULT    = "MULT"
-	DIV     = "DIV"
-	LPAREN  = "("
-	RPAREN  = ")"
-	EOF     = "EOF"
+	INTEGER = 0
+	PLUS    = 1
+	MINUS   = 2
+	MULT    = 3
+	DIV     = 4
+	LPAREN  = 5
+	RPAREN  = 6
+	EOF     = 7
 )
 
 type Token struct {
-	label   string
+	label   int
 	literal string
 }
 
