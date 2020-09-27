@@ -20,5 +20,6 @@ type Token struct {
 }
 
 func (t *Token) String() string {
-	return fmt.Sprintf("Token label: %v, literal: %v\n", t.label, t.literal)
+	names := []string{"INTEGER", "PLUS", "MINUS", "MULT", "DIV", "LPAREN", "RPAREN", "EOF"}
+	return fmt.Sprintf("Token label: %v, literal: %v\n", names[t.label], t.literal)
 }

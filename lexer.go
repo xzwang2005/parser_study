@@ -2,6 +2,7 @@ package main
 
 import (
 	"strings"
+	"unicode"
 )
 
 type Lexer struct {
@@ -22,7 +23,7 @@ func (it *Lexer) Done() bool {
 
 func (it *Lexer) SkipWhitespace() {
 	for {
-		if it.Done() || it.text[it.pos] != ' ' {
+		if it.Done() || !unicode.IsSpace(rune(it.text[it.pos])) {
 			return
 		}
 		it.Advance()
@@ -32,7 +33,7 @@ func (it *Lexer) SkipWhitespace() {
 func (it *Lexer) GetInteger() *Token {
 	var sb strings.Builder
 	for {
-		if it.Done() || it.text[it.pos] < '0' || it.text[it.pos] > '9' {
+		if it.Done() || !unicode.IsDigit(rune(it.text[it.pos])) {
 			break
 		}
 		sb.WriteString(string(it.text[it.pos]))
@@ -90,7 +91,7 @@ func (it *Lexer) GetNextToken() {
 			literal: ")",
 		}
 	default:
-		if currentChar >= '0' && currentChar <= '9' {
+		if unicode.IsDigit(rune(currentChar)) {
 			it.currentToken = it.GetInteger()
 		}
 	}
