@@ -2,12 +2,22 @@ package main
 
 import (
 	"errors"
-	"fmt"
-	"strconv"
 )
 
 type Interpreter struct {
 	Lexer
+}
+
+func NewInterpreter(text string) *Interpreter {
+	it := Interpreter{
+		Lexer{
+			text:         text,
+			pos:          0,
+			currentToken: nil,
+		},
+	}
+	it.GetNextToken()
+	return &it
 }
 
 func (it *Interpreter) Eat(tokenLabel int) error {
@@ -28,62 +38,57 @@ grammar:
 
 */
 
-func (it *Interpreter) Factor() (int, error) {
+// Factor spit out an integer node or an expr node
+func (it *Interpreter) Factor() *AstNode {
 	switch it.currentToken.label {
 	case LPAREN:
 		it.Eat(LPAREN)
-		val := it.Expr()
+		node := it.Expr()
 		it.Eat(RPAREN)
-		return val, nil
+		return node
 	case INTEGER:
-		val, err := strconv.Atoi(it.currentToken.literal)
-		if err != nil {
-			panic(fmt.Sprintf("%v", err))
+		node := &AstNode{
+			token: it.currentToken,
 		}
 		it.Eat(INTEGER)
-		return val, nil
+		return node
 	default:
-		return 0, errors.New("Unexpected token type, expecting integer or left parenthese")
+		return nil
 	}
 }
 
-func (it *Interpreter) Term() int {
-	val, _ := it.Factor()
+func (it *Interpreter) Term() *AstNode {
+	node := it.Factor()
 	for {
-		switch it.currentToken.label {
-		case MULT:
-			it.Eat(MULT)
-			right, _ := it.Factor()
-			val *= right
-		case DIV:
-			it.Eat(DIV)
-			right, _ := it.Factor()
-			if right == 0 {
-				panic("Divide by zero.")
+		if it.currentToken.label == MULT || it.currentToken.label == DIV {
+			fNode := &AstNode{
+				token: it.currentToken,
 			}
-			val /= right
-		default:
-			return val
+			fNode.left = node
+			it.Eat(it.currentToken.label)
+			fNode.right = it.Factor()
+			node = fNode
+		} else {
+			return node
 		}
 	}
 }
 
-func (it *Interpreter) Expr() int {
+func (it *Interpreter) Expr() *AstNode {
 
-	val := it.Term()
+	node := it.Term()
 
 	for {
-		switch it.currentToken.label {
-		case PLUS:
-			it.Eat(PLUS)
-			right := it.Term()
-			val += right
-		case MINUS:
-			it.Eat(MINUS)
-			right := it.Term()
-			val -= right
-		default:
-			return val
+		if it.currentToken.label == PLUS || it.currentToken.label == MINUS {
+			fNode := &AstNode{
+				token: it.currentToken,
+			}
+			fNode.left = node
+			it.Eat(it.currentToken.label)
+			fNode.right = it.Term()
+			node = fNode
+		} else {
+			return node
 		}
 	}
 }
