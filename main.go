@@ -8,6 +8,7 @@ func Calculate(eq string) int {
 			currentToken: nil,
 		},
 	}
+	it.GetNextToken()
 	return it.Expr()
 }
 

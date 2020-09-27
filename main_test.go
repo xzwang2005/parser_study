@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"strconv"
+	"testing"
+)
 
 func TestSingleDigitPlus(t *testing.T) {
 	res := Calculate("2+9")
@@ -34,5 +37,12 @@ func TestMultipleOperators(t *testing.T) {
 	res := Calculate("2 + 6- 4 +5-3")
 	if res != 6 {
 		t.Error("2 + 6- 4 +5-3!= 6")
+	}
+}
+
+func TestFourOperations(t *testing.T) {
+	res := Calculate("2 + 6* 2 -5/2 +2*3/4+6*8/7")
+	if res != 19 {
+		t.Error("2 + 6* 2 -5/2 +2*3/4+6*8/7 = ", strconv.Itoa(res))
 	}
 }

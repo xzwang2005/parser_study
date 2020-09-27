@@ -7,6 +7,8 @@ const (
 	INTEGER = "INTEGER"
 	PLUS    = "PLUS"
 	MINUS   = "MINUS"
+	MULT    = "MULT"
+	DIV     = "DIV"
 	EOF     = "EOF"
 )
 

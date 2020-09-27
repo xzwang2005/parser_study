@@ -13,13 +13,22 @@ type Interpreter struct {
 func (it *Interpreter) Eat(tokenLabel string) error {
 	if it.currentToken.label == tokenLabel {
 		//fmt.Printf("process token: %v\n", it.currentToken)
-		it.currentToken = it.GetNextToken()
+		it.GetNextToken()
 		return nil
 	}
 	return errors.New("Error in consuming token")
 }
 
-func (it *Interpreter) Term() (int, error) {
+/*
+
+grammar:
+	expr := term (('+'|'-')term)*
+	term := factor (('*'|'/')factor)*
+	factor:= INTEGER
+
+*/
+
+func (it *Interpreter) Factor() (int, error) {
 	val, err := strconv.Atoi(it.currentToken.literal)
 	if err != nil {
 		panic(fmt.Sprintf("%v", err))
@@ -28,29 +37,40 @@ func (it *Interpreter) Term() (int, error) {
 	return val, nil
 }
 
-func (it *Interpreter) Expr() int {
-	it.currentToken = it.GetNextToken()
-
-	val, _ := it.Term()
-
+func (it *Interpreter) Term() int {
+	val, _ := it.Factor()
 	for {
-		if it.currentToken == nil {
-			break
-		}
-
-		if it.currentToken.label == PLUS {
-			it.Eat(PLUS)
-			right, _ := it.Term()
-			val += right
-			continue
-		}
-
-		if it.currentToken.label == MINUS {
-			it.Eat(MINUS)
-			right, _ := it.Term()
-			val -= right
-			continue
+		switch it.currentToken.label {
+		case MULT:
+			it.Eat(MULT)
+			right, _ := it.Factor()
+			val *= right
+		case DIV:
+			it.Eat(DIV)
+			right, _ := it.Factor()
+			val /= right
+		default:
+			return val
 		}
 	}
-	return val
+}
+
+func (it *Interpreter) Expr() int {
+
+	val := it.Term()
+
+	for {
+		switch it.currentToken.label {
+		case PLUS:
+			it.Eat(PLUS)
+			right := it.Term()
+			val += right
+		case MINUS:
+			it.Eat(MINUS)
+			right := it.Term()
+			val -= right
+		default:
+			return val
+		}
+	}
 }

@@ -1,6 +1,8 @@
 package main
 
-import "strings"
+import (
+	"strings"
+)
 
 type Lexer struct {
 	text         string
@@ -21,7 +23,7 @@ func (it *Lexer) Done() bool {
 func (it *Lexer) SkipWhitespace() {
 	for {
 		if it.Done() || it.text[it.pos] != ' ' {
-			break
+			return
 		}
 		it.Advance()
 	}
@@ -43,38 +45,41 @@ func (it *Lexer) GetInteger() *Token {
 	}
 }
 
-func (it *Lexer) GetNextToken() *Token {
-	for {
-		if it.Done() {
-			break
+func (it *Lexer) GetNextToken() {
+	it.SkipWhitespace()
+	// when Done() = true, return nil for currentToken
+	if it.Done() {
+		return
+	}
+	currentChar := it.text[it.pos]
+	switch currentChar {
+	case '+':
+		it.Advance()
+		it.currentToken = &Token{
+			label:   PLUS,
+			literal: "+",
 		}
-		currentChar := it.text[it.pos]
-
-		if currentChar == ' ' {
-			it.SkipWhitespace()
+	case '-':
+		it.Advance()
+		it.currentToken = &Token{
+			label:   MINUS,
+			literal: "-",
 		}
-
+	case '*':
+		it.Advance()
+		it.currentToken = &Token{
+			label:   MULT,
+			literal: "*",
+		}
+	case '/':
+		it.Advance()
+		it.currentToken = &Token{
+			label:   DIV,
+			literal: "/",
+		}
+	default:
 		if currentChar >= '0' && currentChar <= '9' {
-			return it.GetInteger()
-		}
-
-		if currentChar == '+' {
-			it.Advance()
-			return &Token{
-				label:   PLUS,
-				literal: "+",
-			}
-		}
-
-		if currentChar == '-' {
-			it.Advance()
-			return &Token{
-				label:   MINUS,
-				literal: "-",
-			}
+			it.currentToken = it.GetInteger()
 		}
 	}
-
-	// when Done() = true, return nil for currentToken
-	return nil
 }
