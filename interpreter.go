@@ -34,7 +34,7 @@ func (it *Interpreter) Eat(tokenLabel int) error {
 grammar:
 	expr := term (('+'|'-')term)*
 	term := factor (('*'|'/')factor)*
-	factor:= INTEGER | '(' expr ')'
+	factor:= ('+'|'-')factor | INTEGER | '(' expr ')'
 
 */
 
@@ -51,6 +51,22 @@ func (it *Interpreter) Factor() *AstNode {
 			token: it.currentToken,
 		}
 		it.Eat(INTEGER)
+		return node
+	case PLUS:
+		fallthrough
+	case MINUS:
+		node := &AstNode{
+			token: it.currentToken,
+		}
+		it.Eat(it.currentToken.label)
+		leftChild := &AstNode{
+			token: &Token{
+				label:   INTEGER,
+				literal: "0",
+			},
+		}
+		node.left = leftChild
+		node.right = it.Factor()
 		return node
 	default:
 		return nil

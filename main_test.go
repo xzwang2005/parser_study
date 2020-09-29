@@ -53,3 +53,24 @@ func TestWithParentheses(t *testing.T) {
 		t.Error("(2 + 6)* 2 - (5+ 3 )*2 - 3 = ", strconv.Itoa(res))
 	}
 }
+
+func TestWithMultLevelParentheses(t *testing.T) {
+	res := Calculate("7 + 3 * (10 / (12 / (3 + 1) - 1)) / (2 + 3) - 5 - 3 + (8)")
+	if res != 10 {
+		t.Error("7 + 3 * (10 / (12 / (3 + 1) - 1)) / (2 + 3) - 5 - 3 + (8) = ", strconv.Itoa(res))
+	}
+}
+
+func TestUnaryOperation(t *testing.T) {
+	res := Calculate("-7+-5")
+	if res != -12 {
+		t.Error("-7+-5 = ", strconv.Itoa(res))
+	}
+}
+
+func TestUnaryOperation2(t *testing.T) {
+	res := Calculate("-7+(-5)*(-2)")
+	if res != 3 {
+		t.Error("-7+(-5)*(-2) = ", strconv.Itoa(res))
+	}
+}
